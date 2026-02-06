@@ -32,7 +32,14 @@ Open this URL in your browser (replace `CLIENT_ID`):
 https://www.strava.com/oauth/authorize?client_id=CLIENT_ID&response_type=code&redirect_uri=http://localhost/exchange_token&approval_prompt=force&scope=read,activity:read_all
 ```
 
-After approval you’ll be redirected to a `localhost` URL that won’t load. That’s expected. Copy the `code` from the URL and exchange it:
+After approval you’ll be redirected to a `localhost` URL that won’t load. That’s expected.
+Example redirect URL:
+
+```text
+http://localhost/exchange_token?state=&code=12345&scope=read,activity:read_all
+```
+
+Copy the value of the `code` query parameter (in this example, `12345`) and exchange it:
 
 ```bash
 curl -X POST https://www.strava.com/oauth/token \
