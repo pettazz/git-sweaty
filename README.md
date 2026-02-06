@@ -44,14 +44,14 @@ curl -X POST https://www.strava.com/oauth/token \
 
 Copy the `refresh_token` from the response.
 
-2. Add GitHub secrets (repo → Settings → Secrets and variables → Actions):
+2. Add GitHub secrets (repo → [Settings → Secrets and variables → Actions](../../settings/secrets/actions)):
 - `STRAVA_CLIENT_ID`
 - `STRAVA_CLIENT_SECRET`
 - `STRAVA_REFRESH_TOKEN` (from the OAuth exchange above)
 
 3. Run the workflow:
-If GitHub shows an **Enable workflows** button in the Actions tab, click it first.
-Go to **Actions → Sync Strava Heatmaps → Run workflow**.
+If GitHub shows an **Enable workflows** button in [Actions](../../actions), click it first.
+Go to [Actions](../../actions) → [Sync Strava Heatmaps](../../actions/workflows/sync.yml) → **Run workflow**.
 The same workflow is also scheduled in `.github/workflows/sync.yml` (daily at `06:00 UTC`).
 
 This will:
@@ -63,9 +63,9 @@ This will:
 
 ## GitHub Pages setup
 
-1. Go to **Settings → Pages**.
+1. Go to [**Settings → Pages**](../../settings/pages).
 2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
-3. Run the workflow once from the top GitHub navigation: **Actions** (not **Settings → Actions**) → **Sync Strava Heatmaps** → **Run workflow**. The **Deploy Pages** workflow will publish `site/` automatically.
+3. Run the workflow once from the top GitHub navigation: [**Actions**](../../actions) → [**Sync Strava Heatmaps**](../../actions/workflows/sync.yml) → **Run workflow**. The **Deploy Pages** workflow will publish `site/` automatically.
 4. Your site will be available at `https://<your-username>.github.io/<repo-name>/` once the deploy finishes.
 
 ## Configuration
