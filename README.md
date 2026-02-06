@@ -65,7 +65,7 @@ This will:
 
 1. Go to **Settings → Pages**.
 2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
-3. Run the workflow once (Actions → Sync Strava Heatmaps). The **Deploy Pages** workflow will publish `site/` automatically.
+3. Run the workflow once from the top GitHub navigation: **Actions** (not **Settings → Actions**) → **Sync Strava Heatmaps** → **Run workflow**. The **Deploy Pages** workflow will publish `site/` automatically.
 4. Your site will be available at `https://<your-username>.github.io/<repo-name>/` once the deploy finishes.
 
 ## Configuration
