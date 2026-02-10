@@ -24,11 +24,26 @@
         --grid-pad-right: 4px;
         --grid-pad-bottom: 6px;
         --grid-pad-left: 6px;
+        --heatmap-axis-col: 36px;
         --axis-width: 36px;
         --axis-gap: 8px;
+        --heatmap-label-row-height: 18px;
         --label-row-height: 32px;
         --label-gap: 6px;
         --label-gap-rotated: 10px;
+        --stats-column-gap: 12px;
+        --side-stat-gap: 8px;
+        --stack-overflow-tolerance-desktop: 24px;
+        --frequency-graph-gap-base: clamp(10px, 1.4vw, 14px);
+        --labeled-card-padding-top: 12px;
+        --labeled-card-title-gap: 6px;
+        --summary-card-max-width: 212px;
+        --summary-grid-gap: 15px;
+        --summary-desktop-columns: 5;
+        --dashboard-content-rail-width: calc(
+          (var(--summary-desktop-columns) * var(--summary-card-max-width)) +
+          ((var(--summary-desktop-columns) - 1) * var(--summary-grid-gap))
+        );
         --radius: 14px;
         --shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
       }
@@ -48,10 +63,22 @@
       }
 
       .app {
-        max-width: 1100px;
+        max-width: 1240px;
         margin: 0 auto;
         display: grid;
         gap: 24px;
+        min-width: 0;
+      }
+
+      .heatmaps,
+      .type-section,
+      .type-list,
+      .labeled-card-row,
+      .card,
+      .card-body,
+      .more-stats,
+      .more-stats-body {
+        min-width: 0;
       }
 
       header {
@@ -60,6 +87,8 @@
         border-radius: var(--radius);
         padding: 24px;
         box-shadow: var(--shadow);
+        width: min(100%, var(--dashboard-content-rail-width));
+        margin-inline: auto;
       }
 
       .header-top {
@@ -75,6 +104,7 @@
         color: var(--muted);
         font-size: 12px;
         text-decoration: none;
+        white-space: nowrap;
       }
 
       .repo-link:hover {
@@ -90,15 +120,11 @@
         text-align: center;
       }
 
-      .subtitle {
-        color: var(--muted);
-        margin: 0 0 16px;
-      }
-
       .updated {
         color: var(--muted);
         font-size: 12px;
         margin: 0;
+        white-space: nowrap;
         justify-self: start;
         grid-column: 1;
         grid-row: 1;
@@ -114,13 +140,155 @@
         display: none;
       }
 
-      .controls select {
+      .filter-control-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .filter-menu {
+        position: relative;
+        min-width: 190px;
+      }
+
+      .filter-menu-button {
+        width: 100%;
         background: var(--bg-2);
         color: var(--text);
         border: 1px solid rgba(148, 163, 184, 0.3);
         border-radius: 10px;
         padding: 8px 12px;
         font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .filter-menu-button > span {
+        width: 100%;
+        min-width: 0;
+        padding: 0 20px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: center;
+      }
+
+      .filter-menu-button::after {
+        content: "▾";
+        color: var(--muted);
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%) rotate(0deg);
+        transition: transform 0.15s ease;
+        pointer-events: none;
+      }
+
+      .filter-menu.open .filter-menu-button::after {
+        transform: translateY(-50%) rotate(180deg);
+      }
+
+      .filter-menu-options {
+        display: none;
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        z-index: 20;
+        background: var(--bg-2);
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 10px;
+        padding: 8px;
+        box-shadow: var(--shadow);
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .filter-menu.open .filter-menu-options {
+        display: flex;
+      }
+
+      .filter-menu-option {
+        width: 100%;
+        background: rgba(15, 23, 42, 0.45);
+        color: var(--text);
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .filter-menu-option.active {
+        border-color: rgba(148, 163, 184, 0.25);
+      }
+
+      .filter-menu-option-label {
+        width: 100%;
+        min-width: 0;
+        padding: 0 20px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: center;
+      }
+
+      .filter-menu-check {
+        accent-color: var(--accent);
+        pointer-events: none;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        flex: 0 0 auto;
+      }
+
+      .filter-menu-done {
+        width: 100%;
+        margin-top: 4px;
+        background: rgba(56, 189, 248, 0.12);
+        color: var(--text);
+        border: 1px solid rgba(56, 189, 248, 0.5);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 13px;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      .filter-clear-button {
+        background: rgba(71, 85, 105, 0.2);
+        color: var(--text);
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 10px;
+        padding: 8px 10px;
+        font-size: 13px;
+        min-width: 58px;
+        cursor: pointer;
+        flex: 0 0 auto;
+        transition: border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+      }
+
+      .filter-clear-button:hover:not(:disabled) {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+      }
+
+      .filter-clear-button:disabled {
+        color: rgba(148, 163, 184, 0.85);
+        opacity: 0.65;
+        cursor: default;
       }
 
       .repo-link {
@@ -167,8 +335,11 @@
 
       .summary {
         display: grid;
-        gap: 16px;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: var(--summary-grid-gap);
+        grid-template-columns: repeat(auto-fit, minmax(min(194px, 100%), var(--summary-card-max-width)));
+        justify-content: center;
+        width: min(100%, var(--dashboard-content-rail-width));
+        margin-inline: auto;
       }
 
       .summary-card {
@@ -177,29 +348,80 @@
         border-radius: 12px;
         padding: 16px;
         box-shadow: var(--shadow);
+        text-align: center;
+
+        display: grid;
+        grid-template-rows: auto 1fr;
+        align-items: center;
+        justify-items: center; /* prevents full-width stretch that moves the dot left */
+        width: 100%;
+      }
+
+      .summary-card-action {
+        appearance: none;
+        width: 100%;
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .summary-card-action.active {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .summary-card-action:hover {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+        }
+      }
+
+      .summary-card-action:focus-visible {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+      }
+
+      .summary-card-action.summary-glow-cleared,
+      .summary-card-action.summary-glow-cleared:focus-visible {
+        border-color: rgba(148, 163, 184, 0.2);
+        box-shadow: none;
       }
 
       .summary-title {
-        font-size: 12px;
+        font-size: clamp(10px, 1.1vw, 12px);
         color: var(--muted);
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
       }
 
       .summary-value {
-        font-size: 20px;
+        font-size: clamp(16px, 1.9vw, 20px);
         font-weight: 600;
+        line-height: 1.1;
       }
 
       .summary-type {
+        position: relative;
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 14px;
+        justify-content: center;
+        width: max-content;   /* shrink-wrap so the dot sits next to the number */
+        margin: 0 auto;       /* keep centered within the card */
+        font-size: clamp(16px, 1.9vw, 20px);
+        font-weight: 600;
+        line-height: 1.1;
       }
 
       .summary-dot {
+        position: absolute;
+        right: 100%;
+        margin-right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
         width: 10px;
         height: 10px;
         border-radius: 50%;
@@ -208,6 +430,8 @@
       .type-section {
         display: grid;
         gap: 12px;
+        width: min(100%, var(--dashboard-content-rail-width));
+        margin-inline: auto;
       }
 
       .type-header {
@@ -220,6 +444,14 @@
         gap: 16px;
       }
 
+      .labeled-card-row {
+        display: block;
+      }
+
+      .labeled-card-title {
+        color: var(--text);
+      }
+
       .card {
         background: var(--card);
         border: 1px solid rgba(148, 163, 184, 0.2);
@@ -227,6 +459,18 @@
         padding: 24px;
         box-shadow: var(--shadow);
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+      }
+
+      .card-with-labeled-title {
+        --card-graph-rail-width: max-content;
+        --frequency-graph-gap: var(--frequency-graph-gap-base);
+        --frequency-grid-pad-right: 0px;
+        display: grid;
+        grid-template-rows: auto auto;
+        row-gap: var(--labeled-card-title-gap);
+        padding-top: var(--labeled-card-padding-top);
       }
 
       .card-title {
@@ -235,18 +479,107 @@
         margin-bottom: 12px;
       }
 
+      .card-title.labeled-card-title {
+        margin: 0;
+        line-height: 1;
+      }
+
       .card-body {
         display: grid;
-        grid-template-columns: max-content minmax(180px, 1fr);
-        gap: 16px;
-        align-items: start;
+        grid-template-columns: var(--card-graph-rail-width) max-content;
+        row-gap: 0;
+        column-gap: var(--stats-column-gap);
+        align-items: center;
+        justify-content: start;
       }
 
       .card-stats {
         display: grid;
-        gap: 8px;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--side-stat-gap);
+        grid-template-columns: repeat(2, max-content);
         align-content: start;
+        width: max-content;
+        max-width: 100%;
+      }
+
+      .year-card .side-stats-column,
+      .more-stats .side-stats-column {
+        margin-left: 0;
+        max-width: 100%;
+        justify-self: end;
+        align-self: center;
+      }
+
+      .year-card .card-stats.side-stats-column {
+        justify-content: start;
+      }
+
+      .year-card .heatmap-area {
+        justify-self: start;
+      }
+
+      .year-card .card-stats.side-stats-column .card-stat-label,
+      .year-card .card-stats.side-stats-column .card-stat-value {
+        white-space: nowrap;
+      }
+
+      .year-card.year-card-stacked .card-body {
+        grid-template-columns: 1fr;
+      }
+
+      .year-card.year-card-stacked .card-stats.side-stats-column {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: var(--side-stat-gap);
+        width: max-content;
+        max-width: 100%;
+        margin-left: calc(var(--heatmap-axis-col) + var(--axis-gap));
+        justify-self: start;
+        align-self: start;
+        margin-top: 12px;
+        align-content: flex-start;
+      }
+
+      .year-card.year-card-stacked .card-stats.side-stats-column .card-stat {
+        flex: 0 0 auto;
+        width: var(--side-stat-card-width, max-content);
+        max-width: 100%;
+      }
+
+      .year-card.year-card-stacked .card-stats.side-stats-column .card-stat-label,
+      .year-card.year-card-stacked .card-stats.side-stats-column .card-stat-value {
+        white-space: nowrap;
+      }
+
+      .card-empty-year {
+        --card-empty-body-height: 0px;
+      }
+
+      .card-empty-year-body {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: var(--card-empty-body-height);
+        padding-left: calc(var(--heatmap-axis-col) + var(--axis-gap));
+      }
+
+      .card-empty-year .card-empty-year-stat {
+        width: max-content;
+        max-width: none;
+        min-height: 0;
+        padding: 6px 10px;
+        align-items: flex-start;
+        text-align: left;
+      }
+
+      .card-empty-year .card-empty-year-stat .card-stat-label {
+        margin-bottom: 0;
+        white-space: nowrap;
+        text-transform: none;
+      }
+
+      .card-empty-year .card-empty-year-stat .card-stat-value {
+        display: none;
       }
 
       .card-stat {
@@ -254,6 +587,13 @@
         border: 1px solid rgba(148, 163, 184, 0.2);
         border-radius: 10px;
         padding: 8px 10px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: var(--side-stat-card-width, max-content);
+        min-height: var(--side-stat-card-min-height, 0px);
       }
 
       .card-stat-label {
@@ -276,20 +616,19 @@
 
       .more-stats {
         --axis-gap: 8px;
-        --label-row-height: calc(var(--cell) * 1.2);
+        --label-row-height: var(--heatmap-label-row-height);
         --label-gap: 0px;
         --label-gap-rotated: 10px;
         display: grid;
-        grid-template-columns: max-content minmax(180px, 1fr);
-        grid-template-rows: auto 1fr;
-        column-gap: 16px;
+        grid-template-columns: var(--card-graph-rail-width) max-content;
+        column-gap: var(--stats-column-gap);
         row-gap: 0;
-        align-items: start;
+        align-items: center;
+        justify-content: start;
       }
 
-      .more-stats-title {
-        margin: 0;
-        grid-column: 1;
+      .more-stats > .labeled-card-title {
+        grid-column: 1 / -1;
         grid-row: 1;
       }
 
@@ -297,52 +636,200 @@
         display: block;
         grid-column: 1;
         grid-row: 2;
-        margin-top: -14px;
+        width: max-content;
+        align-self: center;
       }
 
       .more-stats-grid {
         display: grid;
         grid-template-columns: repeat(3, max-content);
-        column-gap: clamp(32px, 5vw, 56px);
+        column-gap: var(--frequency-graph-gap);
         row-gap: 12px;
         align-items: start;
         justify-content: start;
         width: max-content;
+        padding-right: var(--frequency-grid-pad-right);
       }
 
       .more-stats-col {
         display: grid;
         align-content: start;
-        justify-items: center;
+        justify-items: start;
         width: max-content;
       }
 
       .more-stats-facts {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
+        display: grid;
+        grid-template-columns: repeat(2, max-content);
+        gap: var(--side-stat-gap);
         grid-column: 2;
-        grid-row: 1 / span 2;
-        align-self: stretch;
-        justify-content: center;
+        grid-row: 2;
+        width: max-content;
+        max-width: 100%;
+        align-self: center;
+        align-content: start;
+        justify-content: start;
         justify-self: end;
       }
 
       .more-stats-fact-card {
-        width: 100%;
+        width: var(--side-stat-card-width, max-content);
+        min-height: var(--side-stat-card-min-height, 0px);
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      .more-stats-fact-button {
+        appearance: none;
+        font: inherit;
+        color: inherit;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+      }
+
+      .more-stats-fact-button.active {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+      }
+
+      .more-stats-fact-button:focus-visible {
+        outline: none;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .more-stats-fact-button:hover:not(:disabled),
+        .more-stats-fact-button:focus-visible {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+        }
+      }
+
+      .more-stats-fact-button.fact-glow-cleared {
+        border-color: rgba(148, 163, 184, 0.2);
+        box-shadow: none;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .more-stats-fact-button.fact-glow-cleared:hover:not(:disabled),
+        .more-stats-fact-button.fact-glow-cleared:focus-visible {
+          border-color: rgba(148, 163, 184, 0.2);
+          box-shadow: none;
+        }
+      }
+
+      .more-stats-fact-button:disabled {
+        cursor: default;
+        opacity: 0.8;
+      }
+
+      .more-stats .more-stats-fact-card.fact-most-active-month .card-stat-label,
+      .more-stats .more-stats-fact-card.fact-most-active-month .card-stat-value {
+        white-space: nowrap;
+      }
+
+      .more-stats:not(.more-stats-stacked) .more-stats-fact-card .card-stat-label,
+      .more-stats:not(.more-stats-stacked) .more-stats-fact-card .card-stat-value {
+        white-space: nowrap;
+      }
+
+      .more-stats.more-stats-stacked {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        row-gap: 0;
+      }
+
+      .more-stats.more-stats-stacked .more-stats-body {
+        grid-column: 1;
+        grid-row: 2;
+      }
+
+      .more-stats.more-stats-stacked .more-stats-facts {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        grid-column: 1;
+        grid-row: 3;
+        gap: var(--side-stat-gap);
+        margin-left: calc(var(--axis-width) + var(--axis-gap));
+        margin-top: 12px;
+        align-self: start;
+        justify-self: start;
+        justify-content: flex-start;
+        align-items: start;
+        align-content: flex-start;
+        width: max-content;
+        max-width: 100%;
+      }
+
+      .more-stats.more-stats-stacked .more-stats-fact-card {
+        width: var(--side-stat-card-width, max-content);
+        max-width: 100%;
+        flex: 0 0 auto;
+      }
+
+      .more-stats.more-stats-stacked .more-stats-fact-card .card-stat-label,
+      .more-stats.more-stats-stacked .more-stats-fact-card .card-stat-value {
+        white-space: nowrap;
+      }
+
+      @media (min-width: 901px) {
+        .card.more-stats:not(.more-stats-stacked) {
+          overflow-x: hidden;
+        }
+        .year-card:not(.year-card-stacked) .card-body,
+        .more-stats:not(.more-stats-stacked) {
+          justify-content: center;
+        }
+      }
+
+      @media (min-width: 1200px) {
+        .summary.summary-center-two-types .summary-type-card:nth-last-child(2) {
+          grid-column: 2;
+        }
+        .summary.summary-center-two-types .summary-type-card:nth-last-child(1) {
+          grid-column: 3;
+        }
+        .summary.summary-center-two-types .summary-type-card {
+          transform: translateX(calc((var(--summary-card-max-width) + var(--summary-grid-gap)) / 2));
+        }
+        .summary.summary-center-three-types .summary-type-card:nth-last-child(3) {
+          grid-column: 2;
+        }
+        .summary.summary-center-three-types .summary-type-card:nth-last-child(2) {
+          grid-column: 3;
+        }
+        .summary.summary-center-three-types .summary-type-card:nth-last-child(1) {
+          grid-column: 4;
+        }
+        .summary.summary-center-four-types .summary-type-card:nth-last-child(4) {
+          grid-column: 1;
+        }
+        .summary.summary-center-four-types .summary-type-card:nth-last-child(3) {
+          grid-column: 2;
+        }
+        .summary.summary-center-four-types .summary-type-card:nth-last-child(2) {
+          grid-column: 3;
+        }
+        .summary.summary-center-four-types .summary-type-card:nth-last-child(1) {
+          grid-column: 4;
+        }
+        .summary.summary-center-four-types .summary-type-card {
+          transform: translateX(calc((var(--summary-card-max-width) + var(--summary-grid-gap)) / 2));
+        }
       }
 
       .heatmap-area {
         display: inline-grid;
-        grid-template-columns: 36px max-content;
-        grid-template-rows: 18px auto;
+        grid-template-columns: var(--heatmap-axis-col) max-content;
+        grid-template-rows: var(--heatmap-label-row-height) auto;
         column-gap: 8px;
         row-gap: 0;
         align-items: start;
         min-width: max-content;
       }
 
-      .year-label,
       .month-label,
       .day-label {
         font-family: "JetBrains Mono", monospace;
@@ -350,19 +837,11 @@
         line-height: 10px;
       }
 
-      .year-label {
-        font-size: 12px;
-        color: var(--text);
-        grid-column: 1;
-        grid-row: 1;
-        align-self: end;
-      }
-
       .month-row {
         position: relative;
         grid-column: 2;
         grid-row: 1;
-        height: 18px;
+        height: var(--heatmap-label-row-height);
         width: max-content;
       }
 
@@ -421,83 +900,43 @@
         color: var(--muted);
       }
 
-      .stat-grid {
-        display: grid;
-        gap: var(--gap);
-        width: max-content;
-      }
-
-      .axis-grid-wrap {
-        position: relative;
-        display: inline-block;
-        width: max-content;
-      }
-
-      .axis-bg {
-        position: absolute;
-        border-radius: 12px;
-        background: rgba(15, 23, 42, 0.8);
-        z-index: 0;
-      }
-
       .stat-matrix {
         display: block;
         min-width: max-content;
       }
 
-      .axis-grid {
-        display: grid;
-        gap: var(--gap);
-        align-items: center;
+      .axis-matrix-area {
+        display: inline-grid;
+        align-items: start;
+        min-width: max-content;
+      }
+
+      .axis-month-row {
         position: relative;
-        z-index: 1;
+        grid-column: 2;
+        grid-row: 1;
+        width: max-content;
       }
 
-      .axis-cell {
-        width: var(--cell);
-        height: var(--cell);
+      .axis-day-col {
+        grid-column: 1;
+        grid-row: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
       }
 
-      .axis-label {
-        font-family: "JetBrains Mono", monospace;
-        font-size: 11px;
-        color: #f1f5f9;
-        text-align: center;
-        line-height: 1;
-        white-space: nowrap;
-        align-self: end;
-        --axis-label-shift: 0px;
-        transform: translateX(var(--axis-label-shift));
+      .axis-matrix-grid {
+        grid-column: 2;
+        grid-row: 2;
+        width: max-content;
+        display: grid;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.8);
       }
 
-      .axis-label.x {
-        text-align: left;
-        justify-self: start;
-        --axis-label-shift: calc(var(--cell) / 2 - 0.5ch);
-      }
-
-      .axis-label.y {
-        justify-self: end;
-        text-align: right;
-        align-self: center;
-        padding-right: var(--axis-gap);
-      }
-
-      .axis-label.diagonal {
-        transform: translateX(var(--axis-label-shift)) rotate(-45deg);
-        transform-origin: 50% 100%;
-      }
-
-      .more-stats .axis-label.diagonal {
-        transform: translateX(var(--axis-label-shift)) rotate(-45deg) translateY(-4px);
-      }
-
-      .more-stats .axis-label.x.diagonal {
-        --axis-label-shift: calc(var(--cell) / 2 - 0.5ch + 1px);
-      }
-
-      .axis-label.empty {
-        visibility: hidden;
+      .axis-x-label {
+        transform-origin: 0 100%;
       }
 
       .cell {
@@ -554,19 +993,20 @@
         transform: none;
       }
 
-      @media (max-width: 720px) {
+      @media (min-width: 721px) {
+        .labeled-card-row .card {
+          margin: 0;
+        }
+
+        .labeled-card-title {
+          font-size: 14px;
+        }
+      }
+
+      @media (max-width: 900px) {
         :root {
-          --cell: 10px;
-          --gap: 2px;
-          --grid-pad-top: 4px;
-          --grid-pad-right: 3px;
-          --grid-pad-bottom: 4px;
-          --grid-pad-left: 4px;
-          --axis-width: 34px;
-          --axis-gap: 8px;
-          --label-row-height: 28px;
-          --label-gap: 5px;
-          --label-gap-rotated: 8px;
+          --labeled-card-padding-top: 10px;
+          --labeled-card-title-gap: 4px;
         }
         body {
           padding: 24px 12px;
@@ -598,9 +1038,22 @@
         .controls {
           grid-column: 1;
           grid-row: 3;
-          justify-content: center;
+          justify-content: flex-start;
           justify-self: center;
           display: flex;
+          flex-direction: column;
+          width: min(360px, 100%);
+          align-items: center;
+          gap: 10px;
+        }
+        .filter-menu {
+          min-width: 0;
+          width: auto;
+          flex: 1 1 auto;
+        }
+        .filter-menu-options {
+          position: static;
+          margin-top: 8px;
         }
         .button-row {
           display: none;
@@ -612,76 +1065,88 @@
         }
         .summary {
           grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
         }
-        .heatmap-area {
-          grid-template-columns: 32px max-content;
-          grid-template-rows: 16px auto;
+        .summary-card {
+          padding: 12px;
         }
-        .month-row {
-          height: 16px;
+        .summary-title {
+          font-size: clamp(10px, 2.2vw, 12px);
+          margin-bottom: 5px;
+        }
+        .summary-value,
+        .summary-type {
+          font-size: clamp(14px, 2.9vw, 18px);
+        }
+        .labeled-card-title {
+          font-size: clamp(10px, 1.8vw, 12px);
+        }
+      }
+
+      @media (max-width: 720px) {
+        :root {
+          --cell: 10px;
+          --gap: 2px;
+          --grid-pad-top: 4px;
+          --grid-pad-right: 3px;
+          --grid-pad-bottom: 4px;
+          --grid-pad-left: 4px;
+          --heatmap-axis-col: 32px;
+          --axis-width: 34px;
+          --axis-gap: 8px;
+          --heatmap-label-row-height: 16px;
+          --label-row-height: 28px;
+          --label-gap: 5px;
+          --label-gap-rotated: 8px;
+        }
+        .labeled-card-title {
+          font-size: clamp(8px, 2.6vw, 11px);
         }
         .day-label {
           font-size: 9px;
         }
-        .card-body {
-          grid-template-columns: 1fr;
+        .card-stats .card-stat-label {
+          font-size: clamp(9px, 2.4vw, 10px);
         }
-        .card-stats {
-          display: flex;
-          flex-wrap: wrap;
+        .card-stats .card-stat-value {
+          font-size: clamp(12px, 3.2vw, 14px);
+        }
+        .summary {
           gap: 8px;
-          width: max-content;
-          max-width: 100%;
-          justify-content: flex-start;
-          align-content: flex-start;
         }
-        .card-stats .card-stat {
-          width: fit-content;
-          max-width: 100%;
-          flex: 0 1 auto;
+        .summary-card {
+          padding: 10px;
+        }
+        .summary-title {
+          font-size: clamp(9px, 2.6vw, 11px);
+          margin-bottom: 4px;
+        }
+        .summary-value,
+        .summary-type {
+          font-size: clamp(13px, 3.9vw, 16px);
+        }
+        .summary-dot {
+          width: 8px;
+          height: 8px;
+          margin-right: 6px;
         }
         .more-stats {
+          --axis-width: 32px;
+          --label-row-height: var(--heatmap-label-row-height);
           --label-gap-rotated: 8px;
-          grid-template-columns: 1fr;
-          grid-template-rows: auto auto auto;
-          row-gap: 8px;
-        }
-        .more-stats-body {
-          grid-column: 1;
-          grid-row: 2;
-          margin-top: 0;
-        }
-        .more-stats-facts {
-          grid-column: 1;
-          grid-row: 3;
-          flex-direction: row;
-          flex-wrap: wrap;
-          gap: 8px;
-          margin-top: 12px;
-          align-self: start;
-          justify-self: start;
-          justify-content: flex-start;
-          align-items: stretch;
-          align-content: flex-start;
-          width: max-content;
-          max-width: 100%;
-          -webkit-text-size-adjust: 100%;
-          text-size-adjust: 100%;
         }
         .more-stats-fact-card {
-          width: fit-content;
           max-width: 100%;
-          flex: 0 1 auto;
         }
         .more-stats-fact-card .card-stat-label {
-          font-size: 10px;
+          font-size: clamp(9px, 2.4vw, 10px);
         }
         .more-stats-fact-card .card-stat-value {
-          font-size: 14px;
+          font-size: clamp(12px, 3.2vw, 14px);
         }
       }
 
-      @media (max-width: 420px) {
+      @media (max-width: 375px) {
         :root {
           --cell: 9px;
           --gap: 2px;
@@ -700,12 +1165,28 @@
       <header>
         <div class="header-top">
           <div id="updated" class="updated"></div>
-          <h1>Strava Workout Heatmaps</h1>
+          <h1>Strava Activity Heatmaps</h1>
           <div class="button-row" id="typeButtons"></div>
           <div class="button-row" id="yearButtons"></div>
           <div class="controls">
-            <select id="typeSelect"></select>
-            <select id="yearSelect"></select>
+            <div class="filter-control-row">
+              <div class="filter-menu" id="typeMenu">
+                <button type="button" class="filter-menu-button" id="typeMenuButton" aria-expanded="false">
+                  <span id="typeMenuLabel">All Activities</span>
+                </button>
+                <div class="filter-menu-options" id="typeMenuOptions"></div>
+              </div>
+              <button type="button" class="filter-clear-button" id="typeClearButton" disabled>Clear</button>
+            </div>
+            <div class="filter-control-row">
+              <div class="filter-menu" id="yearMenu">
+                <button type="button" class="filter-menu-button" id="yearMenuButton" aria-expanded="false">
+                  <span id="yearMenuLabel">All Years</span>
+                </button>
+                <div class="filter-menu-options" id="yearMenuOptions"></div>
+              </div>
+              <button type="button" class="filter-clear-button" id="yearClearButton" disabled>Clear</button>
+            </div>
           </div>
           <a class="repo-link" href="https://github.com/aspain/git-sweaty">github.com/aspain/git-sweaty</a>
         </div>
@@ -717,6 +1198,6 @@
 
     <div id="tooltip" class="tooltip"></div>
 
-    <script src="app.js?v=22"></script>
+    <script src="app.js?v=__APP_VERSION__"></script>
   </body>
 </html>

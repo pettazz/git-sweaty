@@ -5,8 +5,9 @@ strava:
   refresh_token: ""
 
 sync:
-  #lookback_years: 5
-  start_date: "2011-01-01" # optional; overrides lookback_years when set
+  # Optional history limits:
+  #lookback_years: 5       # ignored when start_date is set
+  start_date: "2011-01-01" # YYYY-MM-DD lower bound
   recent_days: 7
   resume_backfill: true
   per_page: 200
@@ -23,7 +24,7 @@ rate_limits:
 activities:
   types:
     - Run
-  include_all_types: false  # set true to ingest non-featured Strava types too
+  include_all_types: false  # include all Strava activity types by default
   group_other_types: true   # when true, map non-featured types into smart buckets
   other_bucket: OtherSports # fallback bucket for unknown activity categories
   group_aliases: {}         # optional explicit group overrides, e.g. {SkiErg: WinterSports}

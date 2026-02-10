@@ -10,10 +10,9 @@ from sync_strava import sync_strava
 from utils import ensure_dir, write_json
 from generate_heatmaps import generate as generate_heatmaps
 
-SUMMARY_TXT = os.path.join("data", "last_sync_summary.txt")
 README_MD = "README.md"
 README_LIVE_SITE_RE = re.compile(
-    r"(- Live site:\s*\[Interactive Heatmaps\]\()https?://[^)]+(\))",
+    r"(?im)^(-\s*(?:Live site:\s*\[Interactive Heatmaps\]|View the Interactive \[Activity Dashboard\])\()https?://[^)]+(\)\s*)$",
     re.IGNORECASE,
 )
 
@@ -26,40 +25,6 @@ def _write_normalized(items):
 def _write_aggregates(payload):
     ensure_dir("data")
     write_json(os.path.join("data", "daily_aggregates.json"), payload)
-
-
-def _commit_changes(message: str) -> None:
-    status = subprocess.run(
-        ["git", "status", "--porcelain"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    if not status.stdout.strip():
-        print("No changes to commit")
-        return
-
-    subprocess.run(
-        [
-            "git",
-            "add",
-            "data",
-            "heatmaps",
-            "site",
-            "README.md",
-        ],
-        check=True,
-    )
-    subprocess.run(["git", "commit", "-m", message], check=True)
-
-
-def _summary_message(default: str) -> str:
-    if os.path.exists(SUMMARY_TXT):
-        with open(SUMMARY_TXT, "r", encoding="utf-8") as f:
-            line = f.readline().strip()
-            if line:
-                return line
-    return default
 
 
 def _repo_slug_from_git() -> Optional[str]:
@@ -114,7 +79,12 @@ def _update_readme_live_site_link() -> None:
         f.write(updated)
 
 
-def run_pipeline(skip_sync: bool, dry_run: bool, prune_deleted: bool, commit: bool) -> None:
+def run_pipeline(
+    skip_sync: bool,
+    dry_run: bool,
+    prune_deleted: bool,
+    update_readme_link: bool,
+) -> None:
     if not skip_sync:
         summary = sync_strava(dry_run=dry_run, prune_deleted=prune_deleted)
         print(f"Synced: {summary}")
@@ -126,11 +96,8 @@ def run_pipeline(skip_sync: bool, dry_run: bool, prune_deleted: bool, commit: bo
     _write_aggregates(aggregates)
 
     generate_heatmaps()
-    _update_readme_live_site_link()
-
-    if commit and not dry_run:
-        message = _summary_message("Sync Strava: update heatmaps")
-        _commit_changes(message)
+    if update_readme_link:
+        _update_readme_live_site_link()
 
 
 def main() -> int:
@@ -138,14 +105,18 @@ def main() -> int:
     parser.add_argument("--skip-sync", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--prune-deleted", action="store_true")
-    parser.add_argument("--commit", action="store_true")
+    parser.add_argument(
+        "--update-readme-link",
+        action="store_true",
+        help="Update README dashboard URL based on the current repository slug.",
+    )
     args = parser.parse_args()
 
     run_pipeline(
         skip_sync=args.skip_sync,
         dry_run=args.dry_run,
         prune_deleted=args.prune_deleted,
-        commit=args.commit,
+        update_readme_link=args.update_readme_link,
     )
     return 0
 
