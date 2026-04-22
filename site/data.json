@@ -19928,6 +19928,13 @@
       "subtype": "Run",
       "type": "Run",
       "year": 2026
+    },
+    {
+      "date": "2026-04-21",
+      "hour": 13,
+      "subtype": "Run",
+      "type": "Run",
+      "year": 2026
     }
   ],
   "aggregates": {
@@ -45383,11 +45390,20 @@
           "distance": 32211.6,
           "elevation_gain": 95.8,
           "moving_time": 10228.0
+        },
+        "2026-04-21": {
+          "activity_ids": [
+            18202318394
+          ],
+          "count": 1,
+          "distance": 12891.5,
+          "elevation_gain": 69.1,
+          "moving_time": 3795.0
         }
       }
     }
   },
-  "generated_at": "2026-04-21T16:07:12.234927+00:00",
+  "generated_at": "2026-04-22T16:05:39.653938+00:00",
   "other_bucket": "OtherSports",
   "type_meta": {
     "Run": {
