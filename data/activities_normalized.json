@@ -32250,5 +32250,16 @@
     "start_date_local": "2026-09-02T17:22:35Z",
     "type": "Run",
     "year": 2026
+  },
+  {
+    "date": "2026-09-04",
+    "distance": 8058.9,
+    "elevation_gain": 41.8,
+    "id": 20037620130,
+    "moving_time": 2625.0,
+    "raw_type": "Run",
+    "start_date_local": "2026-09-04T14:39:26Z",
+    "type": "Run",
+    "year": 2026
   }
 ]
