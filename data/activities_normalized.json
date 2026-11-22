@@ -32800,5 +32800,16 @@
     "start_date_local": "2026-11-19T14:25:03Z",
     "type": "Run",
     "year": 2026
+  },
+  {
+    "date": "2026-11-21",
+    "distance": 20128.6,
+    "elevation_gain": 90.5,
+    "id": 21076872204,
+    "moving_time": 5550.0,
+    "raw_type": "Run",
+    "start_date_local": "2026-11-21T15:57:13Z",
+    "type": "Run",
+    "year": 2026
   }
 ]
